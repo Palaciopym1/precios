@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Precios PalacioPYM</title>
+<meta name="description" content="Revisar los cambios de precio de la máquina de PalacioPYM.">
+<meta name="theme-color" content="#6d3bbf">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Precios">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<style>
+html,body{margin:0;height:100%;background:#eef0f3}
+iframe{position:fixed;top:0;left:0;width:100%;height:100%;border:0}
+</style>
+</head>
+<body>
+<!--
+  Página de instalación de la app del celular de PalacioPYM.
+  La app de verdad está en Google Apps Script (cuenta palaciopym@gmail.com) y se ve aquí
+  dentro. Esta página solo pone el nombre, el ícono y el botón de instalar.
+  La app le pide instalar con un mensaje { app: 'ppym', tipo: 'instalar' }.
+-->
+<iframe id="app" title="Precios PalacioPYM" allow="clipboard-write; web-share"
+  src="https://script.google.com/macros/s/AKfycbxCt1rQ3a_2ONVhXzAoN3kFmsUSIyATH2j4bazksg6NB8HN-8dIuAueXBr6vFTjd-yN/exec"></iframe>
+<script>
+var aviso = null;
+var instalada = (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
+var ua = navigator.userAgent || '';
+var plataforma = /iPhone|iPad|iPod/i.test(ua) ? 'ios' : (/Android/i.test(ua) ? 'android' : 'otro');
+var oyentes = [];
+function estado() { return { app: 'ppym', tipo: 'estado', marco: true, instalable: !!aviso, instalada: instalada, plataforma: plataforma }; }
+function avisar() { oyentes.forEach(function (w) { try { w.postMessage(estado(), '*'); } catch (e) {} }); }
+function deGoogle(origen) { try { return /\.googleusercontent\.com$/.test(new URL(origen).hostname); } catch (e) { return false; } }
+window.addEventListener('beforeinstallprompt', function (e) { e.preventDefault(); aviso = e; avisar(); });
+window.addEventListener('appinstalled', function () { instalada = true; aviso = null; avisar(); });
+window.addEventListener('message', function (e) {
+  var d = e.data || {};
+  if (d.app !== 'ppym' || !e.source || !deGoogle(e.origin)) return;
+  if (oyentes.indexOf(e.source) < 0) oyentes.push(e.source);
+  if (d.tipo === 'hola') { e.source.postMessage(estado(), '*'); return; }
+  if (d.tipo === 'instalar') {
+    if (!aviso) { e.source.postMessage({ app: 'ppym', tipo: 'resultado', resultado: 'no-disponible', plataforma: plataforma, instalada: instalada }, '*'); return; }
+    var p = aviso; aviso = null;
+    p.prompt();
+    p.userChoice.then(function (r) {
+      if (r && r.outcome === 'accepted') instalada = true;
+      e.source.postMessage({ app: 'ppym', tipo: 'resultado', resultado: r ? r.outcome : 'dismissed', plataforma: plataforma }, '*');
+      avisar();
+    }).catch(function () {});
+  }
+});
+if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js').catch(function () {}); }
+</script>
+</body>
+</html>
