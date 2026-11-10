@@ -79,7 +79,7 @@ function sinSaludo() {
   if (saludo) return;
   limpiarRelojes();
   // Ya instalada (abierta desde el ícono): abre la app de Google de una vez.
-  if (desdeIcono) { location.replace(APP); return; }
+  if (desdeIcono) { location.replace(APP + '?directo=1'); return; }
   pintarPlan();
   $('plan').hidden = false;
 }
@@ -94,7 +94,7 @@ marco.addEventListener('load', function () {
   if (!marco.getAttribute('src') || saludo) return;
   relojes.push(setTimeout(sinSaludo, ESPERA_TRAS_CARGAR));
 });
-$('bAbrir').href = APP;
+$('bAbrir').href = APP + '?directo=1';   // directo=1: la app no manda de vuelta a esta página
 $('bOtraVez').addEventListener('click', cargar);
 $('bInstalar').addEventListener('click', function () {
   if (!aviso) return;
