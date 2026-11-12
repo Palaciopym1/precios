@@ -1,6 +1,6 @@
 // Service worker de la app del celular de PalacioPYM: permite instalarla.
 // No guarda datos de la tienda; todo viene de internet. Sin internet muestra la página guardada.
-var CACHE = 'ppym-v2';
+var CACHE = 'ppym-v3';
 self.addEventListener('install', function (e) {
   e.waitUntil(caches.open(CACHE).then(function (c) { return c.addAll(['./', 'index.html', 'manifest.webmanifest', 'icon-192.png']); }).then(function () { return self.skipWaiting(); }));
 });
